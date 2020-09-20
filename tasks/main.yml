@@ -9,6 +9,7 @@
 - name: Docker swarm init first node
   docker_swarm:
     state: present
+    advertise_addr: '{{ inventory_hostname }}'
   when: "'initial_manager' in group_names"
 
 - name: Docker get init swarm-node info
@@ -24,15 +25,15 @@
 - name: Adding Managers
   docker_swarm:
     state: join
-    advertise_addr: "{{ ansible_default_ipv4.address }}"
+    advertise_addr: "{{ inventory_hostname }}"
     join_token: "{{ hostvars[groups['initial_manager'][0]].swarm_info.swarm_facts.JoinTokens.Manager }}"
-    remote_addrs: "{{ hostvars[groups['initial_manager'][0]].ansible_default_ipv4.address }}:2377"
+    remote_addrs: "{{ hostvars[groups['initial_manager'][0]].inventory_hostname }}:2377"
   when: "'managers' in group_names"
 
 - name: Adding Workers
   docker_swarm:
     state: join
-    advertise_addr: "{{ ansible_default_ipv4.address }}"
+    advertise_addr: "{{ inventory_hostname }}"
     join_token: "{{ hostvars[groups['initial_manager'][0]].swarm_info.swarm_facts.JoinTokens.Worker }}"
-    remote_addrs: "{{ hostvars[groups['initial_manager'][0]].ansible_default_ipv4.address }}:2377"
+    remote_addrs: "{{ hostvars[groups['initial_manager'][0]].inventory_hostname }}:2377"
   when: "'workers' in group_names"
